@@ -1,0 +1,16 @@
+---
+promtail_journal: /run/log/journal
+
+podman_packages:
+  - podman
+  - cni-plugins
+  - fuse-overlayfs
+  - slirp4netns
+
+docker_packages:
+  - docker
+
+nginx_packages:
+  - nginx
+  - certbot
+  - certbot-nginx

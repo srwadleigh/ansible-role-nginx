@@ -1,0 +1,8 @@
+---
+
+- name: Start/Enable nginx
+  listen: "restart nginx"
+  ansible.builtin.systemd:
+    name: nginx
+    state: restarted
+    enabled: true

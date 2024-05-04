@@ -1,0 +1,11 @@
+---
+- name: Setup nginx packages
+  block:
+
+  - name: Install nginx packages
+    ansible.builtin.package:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ nginx_packages }}"
+  when:
+    - nginx_packages_intall

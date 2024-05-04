@@ -1,0 +1,19 @@
+---
+promtail_journal: /var/log/journal
+
+podman_packages:
+  - podman
+  - systemd-container
+  - acl
+
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-compose
+  - sysdocker-compose-plugin
+
+nginx_packages:
+  - nginx
+  - certbot
+  - python3-certbot-nginx

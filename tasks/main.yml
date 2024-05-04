@@ -1,0 +1,30 @@
+---
+- name: Role for setting up a nginx reverse proxy
+  block:
+
+  - name: gather local facts
+    set_fact:
+      local_user: "{{ lookup('env', 'USER') }}"
+      delegate_to: localhost
+
+  - name: nginx checking packages
+    ansible.builtin.include_tasks: packages.yml
+    tags: 
+      - nginx
+      - nginx-packages
+
+  - name: nginx setup configs
+    ansible.builtin.include_tasks: nginx.yml
+    tags: 
+      - nginx
+      - nginx-configs
+
+  - name: nginx setup ssl
+    ansible.builtin.include_tasks: ssl.yml
+    tags: 
+      - nginx
+      - nginx-ssl
+      
+  when:
+    - nginx_sites is defined
+

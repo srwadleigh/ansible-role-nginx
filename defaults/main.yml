@@ -1,0 +1,17 @@
+---
+nginx_packages_intall: true
+nginx_packages:
+  - nginx
+  - certbot
+  - python3-certbot-nginx
+
+nginx_path: /etc/nginx/conf.d
+nginx_default_template: basic-proxy
+
+nginx_proxy_connection_timeout: 10
+nginx_proxy_read_timeout: 200
+nginx_proxy_send_timeout: 200
+
+nginx_ssl_path: /etc/letsencrypt/live
+# define email for dyanmic certificates
+# nginx_ssl_email:

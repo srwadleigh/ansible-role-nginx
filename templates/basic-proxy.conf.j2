@@ -1,0 +1,52 @@
+# template: basic-proxy generated via ansible by {{ local_user }} at {{ ansible_date_time.time }} {{ ansible_date_time.date }}
+
+{% if item.ssl is defined %}
+server {
+        if ($host = {{ item.url }}) {
+            return 301 https://$host$request_uri;
+        }
+    
+        listen {% if item.listen is defined %}{{ item.listen }}:{% endif %}80;
+        server_name {{ item.url }};
+        return 404;
+}
+{% endif %}
+
+server {
+        listen {% if item.listen is defined %}{{ item.listen }}:{% endif %}{% if item.ssl is defined %}443 ssl http2{% else %}80{% endif %};
+        server_name {{ item.url }};
+        access_log /var/log/nginx/http-access-{{ item.name }}.log;
+  
+{% if item.ssl is defined %}
+{% if item.ssl_barrow is defined %}
+        ssl_certificate /etc/letsencrypt/live/{{ item.ssl_barrow }}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/{{ item.ssl_barrow }}/privkey.pem;
+{% else %}
+        ssl_certificate /etc/letsencrypt/live/{{ item.url }}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/{{ item.url }}/privkey.pem;
+{% endif %}
+        include /etc/letsencrypt/options-ssl-nginx.conf;
+        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+{% endif %}
+
+{% if item.configs is defined %}
+{% for config in item.configs %}
+       {{ config }};
+{% endfor -%}
+{% endif -%}
+
+        location / {
+                proxy_pass {{ item.upstream }};
+                proxy_pass_header Server;
+                proxy_set_header Host $http_host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Scheme $scheme;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-NginX-Proxy true;            
+                proxy_redirect off;
+                proxy_read_timeout {{ item.read_timeout | d(nginx_proxy_read_timeout) }};
+                proxy_send_timeout {{ item.send_timeout | d(nginx_proxy_send_timeout) }};
+                proxy_connect_timeout {{ item.connection_timeout | d(nginx_proxy_connection_timeout) }};
+        }    
+}

@@ -1,0 +1,15 @@
+---
+promtail_journal: /run/log/journal
+
+podman_packages:
+  - podman
+  - systemd-container
+
+docker_packages:
+  - docker-ce
+
+nginx_packages:
+  - nginx
+  - httpd-tools
+  - certbot
+  - python3-certbot-nginx

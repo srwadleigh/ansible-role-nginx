@@ -1,0 +1,25 @@
+---
+- name: Setup nginx configs
+  block:
+
+  - name: Set selinux http can connect
+    ansible.builtin.command: setsebool -P httpd_can_network_connect 1
+    when:
+      - ansible_os_family == "RedHat"
+
+  - name: Template nginx server name  hash config
+    ansible.builtin.template:
+      src: "templates/server-name-hash.conf.j2"
+      dest: "{{ nginx_path }}/server-name-hash.conf"
+      mode: 0644
+    notify: "restart nginx"
+    when:
+      - nginx_server_name_hash is number
+
+  - name: Template nginx configs
+    ansible.builtin.template:
+      src: "templates/{{ item.template | d(nginx_default_template) }}.conf.j2"
+      dest: "{{ nginx_path }}/{{ item.name }}.conf"
+      mode: 0644
+    loop: "{{ nginx_sites }}"
+    notify: "restart nginx"

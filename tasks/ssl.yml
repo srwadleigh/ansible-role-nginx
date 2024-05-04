@@ -1,0 +1,29 @@
+---
+- name: Setup ssl certificates
+  block:
+  
+  - name: Request ssl certificates
+    ansible.builtin.command: certbot --nginx --agree-tos -n -m "{{ nginx_ssl_email }}" -d "{{ site.url }}"
+    args:
+      creates:
+        - "{{ nginx_ssl_path }}/{{ site.url }}/cert.pem"
+        - "{{ nginx_ssl_path }}/{{ site.url }}/chain.pem"
+        - "{{ nginx_ssl_path }}/{{ site.url }}/fullchain.pem"
+        - "{{ nginx_ssl_path }}/{{ site.url }}/privkey.pem"
+    vars:
+      ssl: true
+    when:
+      - site.ssl is defined
+      - site.ssl
+    loop: "{{ nginx_sites }}"
+    loop_control:
+      loop_var: site
+
+  - name: Add cron job for ssl renewal
+    ansible.builtin.cron:
+      name: "Renew ssl certs"
+      minute: "{{ 59 | random }}"
+      hour: "*/12"
+      job: "/usr/bin/certbot renew --nginx --quiet"
+    when:
+      - ssl is defined
